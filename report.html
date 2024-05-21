@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raportează o Infestare | Sistem de Gestionare a Pesticidelor</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1em 0;
+            text-align: center;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #hero {
+            background-image: url('agriculture.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 100px 20px;
+            color: white;
+            text-align: center;
+        }
+
+        #hero h2 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+
+        #hero p {
+            font-size: 1.2em;
+            margin-bottom: 1.5em;
+        }
+
+        .cta-button {
+            background-color: #fff;
+            color: #4CAF50;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 1.2em;
+            border-radius: 5px;
+        }
+
+        .cta-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        #features {
+            padding: 50px 20px;
+            background-color: white;
+            text-align: center;
+        }
+
+        #features h2 {
+            font-size: 2em;
+            margin-bottom: 1em;
+        }
+
+        #features ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #features ul li {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        footer p {
+            margin: 5px 0;
+        }
+
+        footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Add any additional styles for the map container */
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Raportează o Infestare</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Acasă</a></li>
+                <li><a href="report.html">Raportează un Dăunător</a></li>
+                <li><a href="map.html">Hartă</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Raportează o Infestare cu Dăunători sau Boli</h2>
+            <form action="submit_report.php" method="post">
+                <label for="location">Locație (Adresă)</label>
+                <input type="text" id="location" name="location" required>
+                <button type="button" onclick="getCoordinates()">Obține Coordonatele</button>
+                <label for="latitudie">Latitudine</label>
+                <input type="text" id="latitude" name="latitude" required>
+                <label for="longitude">Longitudine</label>
+                <input type="text" id="longitude" name="longitude" required>
+                <div id="map"></div> 
+
+                <label for="pest">Nume Dăunător:</label>
+                <input type="text" id="pest" name="pest" onchange="toggleOtherPest()" placeholder="Introduceți numele dăunătorului">
+                <br><br>
+                <label for="lastSpotted">Data ultimei observări a dăunătorului:</label>
+                <input type="date" id="lastSpotted" name="lastSpotted">
+                <br><br>
+                <button type="submit">Trimite Raportul</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        
+    </footer>
+
+    <script>
+        var map;
+        var marker;
+
+        function initMap() {
+            // Initialize map
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 45.9432, lng: 24.9668 },
+                zoom: 6
+            });
+
+            // Add click event listener to map
+            map.addListener("click", function(event) {
+                placeMarker(event.latLng);
+            });
+        }
+
+        function placeMarker(location) {
+            
+            if (marker) {
+                marker.setMap(null);
+            }
+
+            
+            marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+
+            // Update input field with coordinates
+            document.getElementById("latitude").value = location.lat();
+            document.getElementById("longitude").value = location.lng();
+        }
+
+        function getCoordinates() {
+            // Get the location input value
+            var location = document.getElementById("location").value;
+
+            // Use a geocoding service to convert the location to coordinates
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: location }, function(results, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+                // Get the first result
+                var result = results[0];
+
+                // Get the coordinates
+                var coordinates = result.geometry.location;
+
+                // Update the input field with the coordinates
+                document.getElementById("latitude").value = coordinates.lat();
+                document.getElementById("longitude").value = coordinates.lng();
+
+                // Place a marker on the map
+                placeMarker(coordinates);
+            } else {
+                console.log("Geocoding failed: " + status);
+            }
+            });
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB0nqyY0gf4-4yxWV0gcAOSB1Yz_iu5Kks&callback=initMap" async defer></script>
+</body>
+</html>
+
